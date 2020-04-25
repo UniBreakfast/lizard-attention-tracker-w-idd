@@ -23,16 +23,18 @@ table.querySelectorAll('td:first-child').forEach(td =>
 
 function replaceWithNumScale(el, side='right') {
   el.value = el.innerText
+
   const nums = [...Array(10).keys()]
   if (side == 'left') {
     nums.reverse()
     el.classList.add('left')
   } else el.classList.add('right')
+
   el.innerHTML = nums.map(num => `<span>${num+1}</span>`).join('')
 
-  const cells = [...el.children]
   el.classList.add('num-scale')
   el.contentEditable = 'false'
+  const cells = [...el.children]
 
   el.onmousemove =({target})=> {
     if (el == target) return
@@ -48,5 +50,7 @@ function replaceWithNumScale(el, side='right') {
   el.onmouseleave =()=> el.onmousemove({target: [...el.children]
     .find(cell => cell.innerText == el.value)})
 
-  el.onclick =({target})=> el.value = target.innerText
+  el.onclick =({target})=> target != el && (el.value = target.innerText)
+
+  el.onmouseleave()
 }
