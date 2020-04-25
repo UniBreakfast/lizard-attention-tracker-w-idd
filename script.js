@@ -16,3 +16,15 @@ function poaListToTableHtml(list) {
     </tr>`).join('') }
   </tbody>`
 }
+
+table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
+table.querySelectorAll('td:first-child').forEach(td =>
+  replaceWithNumScale(td, 'left'))
+
+function replaceWithNumScale(el, side='right') {
+  el.value = el.innerText
+  const nums = [...Array(10).keys()]
+  if (side == 'left') nums.reverse()
+  el.innerHTML = nums.map(num => `<span>${num+1}</span>`).join('')
+  el.classList.add('num-scale')
+}
