@@ -54,3 +54,9 @@ function replaceWithNumScale(el, side='right') {
 
   el.onmouseleave()
 }
+
+function tableToPoaList(table) {
+  return [...table.rows].slice(1)
+    .map(({cells: [{value: aPrefer}, {innerText: name}, {value: aActual}]})=>
+      ({name, aPrefer, aActual})).filter(({name})=> name)
+}
