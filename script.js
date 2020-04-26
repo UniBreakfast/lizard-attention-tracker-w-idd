@@ -1,6 +1,30 @@
 table.innerHTML = poaListToTableHtml(poaList)
 
+table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
+table.querySelectorAll('td:first-child').forEach(td =>
+  replaceWithNumScale(td, 'left'))
+
+table.querySelectorAll('td:nth-child(2)').forEach(td =>
+  td.oninput = handlePoaNameInput)
+
+function handlePoaNameInput({target}) {
+  if ([...table.querySelectorAll('td:nth-child(2)')]
+        .every(td => td.innerText))  addEmptyRow(table)
+}
+
+function addEmptyRow(table) {
+  const tr = document.createElement('tr')
+  tr.innerHTML = '<td>1</td><td contenteditable></td><td>1</td>'
+  table.lastChild.append(tr)
+  const [left, middle, right] = tr.children
+  replaceWithNumScale(left, 'left')
+  replaceWithNumScale(right)
+  middle.oninput = handlePoaNameInput
+}
+
 function poaListToTableHtml(list) {
+  if (!list.find(({name})=> !name))
+    list.push({name: '', aPrefer: 1, aActual: 1})
   return `<thead>
     <tr>
       <th>preferred attention</th>
@@ -16,10 +40,6 @@ function poaListToTableHtml(list) {
     </tr>`).join('') }
   </tbody>`
 }
-
-table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
-table.querySelectorAll('td:first-child').forEach(td =>
-  replaceWithNumScale(td, 'left'))
 
 function replaceWithNumScale(el, side='right') {
   el.value = el.innerText
