@@ -60,3 +60,14 @@ function tableToPoaList(table) {
     .map(({cells: [{value: aPrefer}, {innerText: name}, {value: aActual}]})=>
       ({name, aPrefer, aActual})).filter(({name})=> name)
 }
+
+function poaStringify(poaList) {
+  return poaList.map(poa => Object.values(poa).join('|')).join('_')
+}
+
+function poaParse(str) {
+  return str.split('_').map(str => {
+    const [name, aPrefer, aActual] = str.split('|')
+    return {name, aPrefer: +aPrefer, aActual: +aActual}
+  })
+}
