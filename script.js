@@ -71,3 +71,18 @@ function poaParse(str) {
     return {name, aPrefer: +aPrefer, aActual: +aActual}
   })
 }
+
+function generateSliceLabel() {
+  const datetime = new Date,
+        year = datetime.getFullYear(),
+        month = String(datetime.getMonth()+1).padStart(2, 0),
+        day = String(datetime.getDate()).padStart(2, 0),
+        date = [year, month, day].join('_'),
+        slicesToday = Object.keys(localStorage)
+          .filter(key => key.startsWith('slice_'+date))
+          .sort((a, b)=> a<b? 1 : -1),
+        letter = slicesToday[0]
+          ? String.fromCharCode(slicesToday[0].slice(-1).charCodeAt() + 1)
+          : 'a'
+  return ['slice', date, letter].join('_')
+}
