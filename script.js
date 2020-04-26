@@ -1,11 +1,24 @@
-table.innerHTML = poaListToTableHtml(poaList)
+loadLastSlice()
 
-table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
-table.querySelectorAll('td:first-child').forEach(td =>
-  replaceWithNumScale(td, 'left'))
+newSliceBtn.onclick = startNewSlice
+saveSliceBtn.onclick = saveSlice
 
-table.querySelectorAll('td:nth-child(2)').forEach(td =>
-  td.oninput = handlePoaNameInput)
+onkeydown = e => {
+  if (e.code == 'KeyS' && e.ctrlKey) saveSlice(), e.preventDefault()
+  if (e.code == 'KeyN' && e.altKey) startNewSlice()
+}
+
+
+function poaListToTable(poaList) {
+  table.innerHTML = poaListToTableHtml(poaList)
+
+  table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
+  table.querySelectorAll('td:first-child').forEach(td =>
+    replaceWithNumScale(td, 'left'))
+
+  table.querySelectorAll('td:nth-child(2)').forEach(td =>
+    td.oninput = handlePoaNameInput)
+}
 
 function handlePoaNameInput({target}) {
   if ([...table.querySelectorAll('td:nth-child(2)')]
@@ -75,7 +88,7 @@ function replaceWithNumScale(el, side='right') {
   el.onmouseleave()
 }
 
-function tableToPoaList(table) {
+function tableToPoaList() {
   return [...table.rows].slice(1)
     .map(({cells: [{value: aPrefer}, {innerText: name}, {value: aActual}]})=>
       ({name, aPrefer, aActual})).filter(({name})=> name)
@@ -105,4 +118,23 @@ function generateSliceLabel() {
           ? String.fromCharCode(slicesToday[0].slice(-1).charCodeAt() + 1)
           : 'a'
   return ['slice', date, letter].join('_')
+}
+
+function loadLastSlice(noValues) {
+  const sliceKeys = Object.keys(localStorage)
+    .filter(key => key.startsWith('slice_')).sort((a, b)=> a<b? 1 : -1)
+  const poaList = sliceKeys[0]? poaParse(localStorage[sliceKeys[0]]) : []
+  sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
+  if (noValues) poaList.forEach(poa => poa.aPrefer = poa.aActual = 1)
+  poaListToTable(poaList)
+}
+
+function startNewSlice() {
+  loadLastSlice(1)
+  sliceLabel.innerText = generateSliceLabel()
+}
+
+function saveSlice() {
+  localStorage[sliceLabel.innerText] = poaStringify(tableToPoaList())
+  loadLastSlice()
 }
