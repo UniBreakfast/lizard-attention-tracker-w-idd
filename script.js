@@ -91,7 +91,7 @@ function replaceWithNumScale(el, side='right') {
 function tableToPoaList() {
   return [...table.rows].slice(1)
     .map(({cells: [{value: needs}, {innerText: name}, {value: gets}]})=>
-      [needs, name, gets]).filter(poa => poa[1])
+      [needs, name.trim(), gets]).filter(poa => poa[1])
 }
 
 function poaStringify(poaList) {
@@ -134,4 +134,28 @@ function startNewSlice() {
 function saveSlice() {
   localStorage[sliceLabel.innerText] = poaStringify(tableToPoaList())
   loadLastSlice()
+}
+
+t2.onmousemove = e => {
+  if (e.target.className == 'trap') {
+    const [trap, scale, row] = e.path
+    let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
+    if (scale.classList.contains('needs'))  part = 11 - part
+    scale.dataset.hoverValue = part
+    row.style.setProperty('--hover-width', part+'0%')
+  }
+}
+
+t2.onclick = e => {
+  if (e.target.className == 'trap') {
+    const [trap, scale, row] = e.path
+    let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
+    if (scale.classList.contains('needs')) {
+      scale.dataset.value = 11 - part
+      row.style.setProperty('--needs-width', 11-part+'0%')
+    } else {
+      scale.dataset.value = part
+      row.style.setProperty('--gets-width', part+'0%')
+    }
+  }
 }

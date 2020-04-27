@@ -1,23 +1,72 @@
-.num-scale {
-  display: flex;
+:root {
+  --needs-color: green;
+  --gets-color: orangered;
+}
+
+.scale {
   width: 140px;
-}
-
-.num-scale span {
-  flex: 1 1 0;
-  text-align: center;
-  color: transparent;
   cursor: pointer;
-}
-
-span.with-num {
   color: white;
+  position: relative;
+  padding: 0;
 }
 
-.left .colored {
-  background: green;
+.scale .bar, .scale .mark, .scale .trap, .scale:after {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  box-sizing: border-box;
 }
 
-.right .colored {
-  background: orangered;
+.scale .trap {
+  width: 100%;
+  z-index: 1;
+}
+
+.scale.needs .bar {
+  right: 0;
+  background: var(--needs-color);
+  width: var(--needs-width);
+}
+
+.scale.gets .bar {
+  background: var(--gets-color);
+  width: var(--gets-width);
+}
+
+.scale.needs .mark {
+  right: 0;
+  border-left: 3px dashed var(--gets-color);
+  width: var(--gets-width);
+}
+
+.scale.gets .mark {
+  border-right: 3px dashed var(--needs-color);
+  width: var(--needs-width);
+}
+
+.scale:hover .bar {
+  width: var(--hover-width);
+}
+
+.scale:after {
+  content: attr(data-value);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+}
+
+.scale.needs:after {
+  right: 0;
+  width: var(--needs-width);
+}
+
+.scale.gets:after {
+  width: var(--gets-width);
+  justify-content: flex-end;
+}
+
+.scale:hover:after {
+  content: attr(data-hover-value);
+  width: var(--hover-width);
 }
