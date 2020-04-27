@@ -35,9 +35,9 @@ function addEmptyRow(table) {
   middle.oninput = handlePoaNameInput
 }
 
-function poaListToTableHtml(list) {
-  if (!list.find(({name})=> !name))
-    list.push({name: '', aPrefer: 1, aActual: 1})
+function poaListToTableHtml(poaList) {
+  if (!poaList.find(poa => !poa[1]))
+    poaList.push([1,'',1])
   return `<thead>
     <tr>
       <th>preferred attention</th>
@@ -46,10 +46,10 @@ function poaListToTableHtml(list) {
     </tr>
   </thead>
   <tbody>
-    ${ list.map(({name, aPrefer, aActual}) => `<tr>
-      <td contenteditable>${aPrefer}</td>
+    ${ poaList.map(([needs, name, gets]) => `<tr>
+      <td contenteditable>${needs}</td>
       <td contenteditable>${name}</td>
-      <td contenteditable>${aActual}</td>
+      <td contenteditable>${gets}</td>
     </tr>`).join('') }
   </tbody>`
 }
@@ -90,8 +90,8 @@ function replaceWithNumScale(el, side='right') {
 
 function tableToPoaList() {
   return [...table.rows].slice(1)
-    .map(({cells: [{value: aPrefer}, {innerText: name}, {value: aActual}]})=>
-      ({name, aPrefer, aActual})).filter(({name})=> name)
+    .map(({cells: [{value: needs}, {innerText: name}, {value: gets}]})=>
+      [needs, name, gets]).filter(poa => poa[1])
 }
 
 function poaStringify(poaList) {
@@ -99,10 +99,7 @@ function poaStringify(poaList) {
 }
 
 function poaParse(str) {
-  return str.split('_').map(str => {
-    const [name, aPrefer, aActual] = str.split('|')
-    return {name, aPrefer: +aPrefer, aActual: +aActual}
-  })
+  return str.split('_').map(str => str.split('|'))
 }
 
 function generateSliceLabel() {
@@ -125,7 +122,7 @@ function loadLastSlice(noValues) {
     .filter(key => key.startsWith('slice_')).sort((a, b)=> a<b? 1 : -1)
   const poaList = sliceKeys[0]? poaParse(localStorage[sliceKeys[0]]) : []
   sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
-  if (noValues) poaList.forEach(poa => poa.aPrefer = poa.aActual = 1)
+  if (noValues) poaList.forEach(poa => poa[0] = poa[2] = 1)
   poaListToTable(poaList)
 }
 
