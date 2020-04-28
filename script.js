@@ -13,7 +13,10 @@ onkeydown = e => {
 }
 
 table.onmousemove = trapMouseMove
-table.onclick = trapMouseClick
+table.onclick = e => {
+  if (e.target.className == 'trap') trapMouseClick(e)
+  else if (e.target.tagName == 'TH') sortTableBy(e.target)
+}
 
 const row0 = table.rows[1]
 row0.remove()
@@ -96,17 +99,36 @@ function trapMouseMove(e) {
 }
 
 function trapMouseClick(e) {
-  if (e.target.className == 'trap') {
-    const [trap, scale, row] = e.path
-    let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
-    if (scale.classList.contains('needs')) {
-      scale.dataset.value = 11 - part
-      row.style.setProperty('--needs-width', 11-part+'0%')
-    } else {
-      scale.dataset.value = part
-      row.style.setProperty('--gets-width', part+'0%')
-    }
+  const [trap, scale, row] = e.path
+  let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
+  if (scale.classList.contains('needs')) {
+    scale.dataset.value = 11 - part
+    row.style.setProperty('--needs-width', 11-part+'0%')
+  } else {
+    scale.dataset.value = part
+    row.style.setProperty('--gets-width', part+'0%')
   }
+}
+
+function sortTableBy(header) {
+  if (header.dataset.sort)
+    header.dataset.sort = header.dataset.sort=='asc'? 'desc' : 'asc'
+  else {
+    [...header.parentNode.cells].forEach(th => delete th.dataset.sort)
+    header.dataset.sort = 'asc'
+  }
+  const tbody = header.parentNode.parentNode.nextElementSibling,
+        rows = [...tbody.rows],
+        col = header.cellIndex
+
+  const sorter = col!=1
+          ? (a, b)=> a.cells[col].dataset.value - b.cells[col].dataset.value
+          : (a, b)=>
+            Math.abs(a.cells[0].dataset.value - a.cells[2].dataset.value) -
+            Math.abs(b.cells[0].dataset.value - b.cells[2].dataset.value)
+  rows.sort(sorter)
+  if (header.dataset.sort == 'desc') rows.reverse()
+  tbody.append(...rows, ...rows.filter(row => !row.cells[1].innerText))
 }
 
 function handlePoaNameInput({target}) {
