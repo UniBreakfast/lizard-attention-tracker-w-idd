@@ -1,8 +1,6 @@
-// loadLastSlice()
 onload =()=> {
   loadLastSlice()
 }
-
 
 newSliceBtn.onclick = startNewSlice
 saveSliceBtn.onclick = saveSlice
