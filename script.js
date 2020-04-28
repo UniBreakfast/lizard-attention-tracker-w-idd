@@ -1,4 +1,9 @@
-loadLastSlice()
+// loadLastSlice()
+onload =()=> {
+  loadPoaListToTable(poaList, table)
+
+}
+
 
 newSliceBtn.onclick = startNewSlice
 saveSliceBtn.onclick = saveSlice
@@ -52,6 +57,24 @@ function poaListToTableHtml(poaList) {
       <td contenteditable>${gets}</td>
     </tr>`).join('') }
   </tbody>`
+}
+
+const row0 = table.rows[1]
+row0.remove()
+
+function buildTableRow([needs, name, gets]) {
+  const row = row0.cloneNode(true),
+       [left, middle, right] = row.cells
+  middle.innerText = name
+  left.dataset.value = needs
+  right.dataset.value = gets
+  row.style.setProperty('--needs-width', needs+'0%')
+  row.style.setProperty('--gets-width', gets+'0%')
+  return row
+}
+
+function loadPoaListToTable(poaList, {tBodies}) {
+  tBodies[0].append(...poaList.map(buildTableRow))
 }
 
 function replaceWithNumScale(el, side='right') {
@@ -136,7 +159,7 @@ function saveSlice() {
   loadLastSlice()
 }
 
-t2.onmousemove = e => {
+table.onmousemove = e => {
   if (e.target.className == 'trap') {
     const [trap, scale, row] = e.path
     let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
@@ -146,7 +169,7 @@ t2.onmousemove = e => {
   }
 }
 
-t2.onclick = e => {
+table.onclick = e => {
   if (e.target.className == 'trap') {
     const [trap, scale, row] = e.path
     let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
