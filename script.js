@@ -1,4 +1,8 @@
-loadLastSlice()
+// loadLastSlice()
+onload =()=> {
+  loadLastSlice()
+}
+
 
 newSliceBtn.onclick = startNewSlice
 saveSliceBtn.onclick = saveSlice
@@ -8,90 +12,33 @@ onkeydown = e => {
   if (e.code == 'KeyN' && e.altKey) startNewSlice()
 }
 
+table.onmousemove = trapMouseMove
+table.onclick = trapMouseClick
 
-function poaListToTable(poaList) {
-  table.innerHTML = poaListToTableHtml(poaList)
+const row0 = table.rows[1]
+row0.remove()
 
-  table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
-  table.querySelectorAll('td:first-child').forEach(td =>
-    replaceWithNumScale(td, 'left'))
-
-  table.querySelectorAll('td:nth-child(2)').forEach(td =>
-    td.oninput = handlePoaNameInput)
-}
-
-function handlePoaNameInput({target}) {
-  if ([...table.querySelectorAll('td:nth-child(2)')]
-        .every(td => td.innerText))  addEmptyRow(table)
-}
-
-function addEmptyRow(table) {
-  const tr = document.createElement('tr')
-  tr.innerHTML = '<td>1</td><td contenteditable></td><td>1</td>'
-  table.lastChild.append(tr)
-  const [left, middle, right] = tr.children
-  replaceWithNumScale(left, 'left')
-  replaceWithNumScale(right)
+function buildTableRow([needs, name, gets]=['','','']) {
+  const row = row0.cloneNode(true),
+       [left, middle, right] = row.cells
+  middle.innerText = name
   middle.oninput = handlePoaNameInput
+  left.dataset.value = needs || ''
+  right.dataset.value = gets || ''
+  row.style.setProperty('--needs-width', needs+'0%')
+  row.style.setProperty('--gets-width', gets+'0%')
+  return row
 }
 
-function poaListToTableHtml(list) {
-  if (!list.find(({name})=> !name))
-    list.push({name: '', aPrefer: 1, aActual: 1})
-  return `<thead>
-    <tr>
-      <th>preferred attention</th>
-      <th>point of attention</th>
-      <th>actual attention</th>
-    </tr>
-  </thead>
-  <tbody>
-    ${ list.map(({name, aPrefer, aActual}) => `<tr>
-      <td contenteditable>${aPrefer}</td>
-      <td contenteditable>${name}</td>
-      <td contenteditable>${aActual}</td>
-    </tr>`).join('') }
-  </tbody>`
+function loadPoaListToTable(poaList, {tBodies}) {
+  tBodies[0].innerHTML = ''
+  tBodies[0].append(...poaList.map(buildTableRow), buildTableRow())
 }
 
-function replaceWithNumScale(el, side='right') {
-  el.value = el.innerText
-
-  const nums = [...Array(10).keys()]
-  if (side == 'left') {
-    nums.reverse()
-    el.classList.add('left')
-  } else el.classList.add('right')
-
-  el.innerHTML = nums.map(num => `<span>${num+1}</span>`).join('')
-
-  el.classList.add('num-scale')
-  el.contentEditable = 'false'
-  const cells = [...el.children]
-
-  el.onmousemove =({target})=> {
-    if (el == target) return
-    cells.forEach(cell => {
-      if (+cell.innerText > +target.innerText)
-        cell.classList.remove('colored')
-      else cell.classList.add('colored')
-      cell.classList.remove('with-num')
-    })
-    target.classList.add('with-num')
-  }
-
-  el.onmouseleave =()=> el.onmousemove({target: [...el.children]
-    .find(cell => cell.innerText == el.value)})
-
-  el.onclick =({target})=> target != el && (el.value = target.innerText)
-
-  el.onmouseleave()
-}
-
-function tableToPoaList() {
-  return [...table.rows].slice(1)
-    .map(({cells: [{value: aPrefer}, {innerText: name}, {value: aActual}]})=>
-      ({name, aPrefer, aActual})).filter(({name})=> name)
+function formPoaListFromTable({tBodies: [{rows}]}) {
+  return [...rows].map(({cells: [
+    {dataset: {value: needs}}, {innerText: name}, {dataset: {value: gets}}
+  ]})=> [+needs, name.trim(), +gets]).filter(poa => poa[1])
 }
 
 function poaStringify(poaList) {
@@ -99,10 +46,8 @@ function poaStringify(poaList) {
 }
 
 function poaParse(str) {
-  return str.split('_').map(str => {
-    const [name, aPrefer, aActual] = str.split('|')
-    return {name, aPrefer: +aPrefer, aActual: +aActual}
-  })
+  return str.split('_').map(str => str.split('|'))
+    .map(([needs, name, gets])=> [+needs, name.trim(), +gets])
 }
 
 function generateSliceLabel() {
@@ -125,16 +70,47 @@ function loadLastSlice(noValues) {
     .filter(key => key.startsWith('slice_')).sort((a, b)=> a<b? 1 : -1)
   const poaList = sliceKeys[0]? poaParse(localStorage[sliceKeys[0]]) : []
   sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
-  if (noValues) poaList.forEach(poa => poa.aPrefer = poa.aActual = 1)
-  poaListToTable(poaList)
+  if (noValues) poaList.forEach(poa => poa[0] = poa[2] = 1)
+  loadPoaListToTable(poaList, table)
 }
 
 function startNewSlice() {
-  loadLastSlice(1)
+  loadLastSlice('empty')
   sliceLabel.innerText = generateSliceLabel()
 }
 
 function saveSlice() {
-  localStorage[sliceLabel.innerText] = poaStringify(tableToPoaList())
+  localStorage[sliceLabel.innerText] = poaStringify(formPoaListFromTable(table))
   loadLastSlice()
+}
+
+function trapMouseMove(e) {
+  if (e.target.className == 'trap') {
+    const [trap, scale, row] = e.path
+    let part = Math.ceil(e.offsetX / trap.clientWidth * 10) || 1
+    if (scale.classList.contains('needs'))
+      part = 11 - part
+    scale.dataset.hoverValue = part
+    row.style.setProperty('--hover-width', part + '0%')
+  }
+}
+
+function trapMouseClick(e) {
+  if (e.target.className == 'trap') {
+    const [trap, scale, row] = e.path
+    let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
+    if (scale.classList.contains('needs')) {
+      scale.dataset.value = 11 - part
+      row.style.setProperty('--needs-width', 11-part+'0%')
+    } else {
+      scale.dataset.value = part
+      row.style.setProperty('--gets-width', part+'0%')
+    }
+  }
+}
+
+function handlePoaNameInput({target}) {
+  const tbody = target.parentNode.parentNode
+  if ([...tbody.rows].every(row => row.cells[1].innerText))
+    tbody.append(buildTableRow())
 }
