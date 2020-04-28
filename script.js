@@ -1,6 +1,5 @@
 // loadLastSlice()
 onload =()=> {
-  // loadPoaListToTable(poaList, table)
   loadLastSlice()
 }
 
@@ -13,11 +12,8 @@ onkeydown = e => {
   if (e.code == 'KeyN' && e.altKey) startNewSlice()
 }
 
-
-function handlePoaNameInput({target}) {
-  if ([...table.querySelectorAll('td:nth-child(2)')]
-        .every(td => td.innerText))  addEmptyRow(table)
-}
+table.onmousemove = trapMouseMove
+table.onclick = trapMouseClick
 
 const row0 = table.rows[1]
 row0.remove()
@@ -26,14 +22,16 @@ function buildTableRow([needs, name, gets]=['','','']) {
   const row = row0.cloneNode(true),
        [left, middle, right] = row.cells
   middle.innerText = name
-  left.dataset.value = needs
-  right.dataset.value = gets
+  middle.oninput = handlePoaNameInput
+  left.dataset.value = needs || ''
+  right.dataset.value = gets || ''
   row.style.setProperty('--needs-width', needs+'0%')
   row.style.setProperty('--gets-width', gets+'0%')
   return row
 }
 
 function loadPoaListToTable(poaList, {tBodies}) {
+  tBodies[0].innerHTML = ''
   tBodies[0].append(...poaList.map(buildTableRow), buildTableRow())
 }
 
@@ -49,6 +47,7 @@ function poaStringify(poaList) {
 
 function poaParse(str) {
   return str.split('_').map(str => str.split('|'))
+    .map(([needs, name, gets])=> [+needs, name.trim(), +gets])
 }
 
 function generateSliceLabel() {
@@ -76,26 +75,27 @@ function loadLastSlice(noValues) {
 }
 
 function startNewSlice() {
-  loadLastSlice(1)
+  loadLastSlice('empty')
   sliceLabel.innerText = generateSliceLabel()
 }
 
 function saveSlice() {
-  localStorage[sliceLabel.innerText] = poaStringify(formPoaListFromTable())
+  localStorage[sliceLabel.innerText] = poaStringify(formPoaListFromTable(table))
   loadLastSlice()
 }
 
-table.onmousemove = e => {
+function trapMouseMove(e) {
   if (e.target.className == 'trap') {
     const [trap, scale, row] = e.path
-    let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
-    if (scale.classList.contains('needs'))  part = 11 - part
+    let part = Math.ceil(e.offsetX / trap.clientWidth * 10) || 1
+    if (scale.classList.contains('needs'))
+      part = 11 - part
     scale.dataset.hoverValue = part
-    row.style.setProperty('--hover-width', part+'0%')
+    row.style.setProperty('--hover-width', part + '0%')
   }
 }
 
-table.onclick = e => {
+function trapMouseClick(e) {
   if (e.target.className == 'trap') {
     const [trap, scale, row] = e.path
     let part = Math.ceil(e.offsetX/trap.clientWidth*10) || 1
@@ -107,4 +107,10 @@ table.onclick = e => {
       row.style.setProperty('--gets-width', part+'0%')
     }
   }
+}
+
+function handlePoaNameInput({target}) {
+  const tbody = target.parentNode.parentNode
+  if ([...tbody.rows].every(row => row.cells[1].innerText))
+    tbody.append(buildTableRow())
 }
