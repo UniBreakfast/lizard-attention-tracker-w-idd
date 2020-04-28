@@ -1,7 +1,7 @@
 // loadLastSlice()
 onload =()=> {
-  loadPoaListToTable(poaList, table)
-
+  // loadPoaListToTable(poaList, table)
+  loadLastSlice()
 }
 
 
@@ -14,55 +14,15 @@ onkeydown = e => {
 }
 
 
-function poaListToTable(poaList) {
-  table.innerHTML = poaListToTableHtml(poaList)
-
-  table.querySelectorAll('td:last-child').forEach(replaceWithNumScale)
-  table.querySelectorAll('td:first-child').forEach(td =>
-    replaceWithNumScale(td, 'left'))
-
-  table.querySelectorAll('td:nth-child(2)').forEach(td =>
-    td.oninput = handlePoaNameInput)
-}
-
 function handlePoaNameInput({target}) {
   if ([...table.querySelectorAll('td:nth-child(2)')]
         .every(td => td.innerText))  addEmptyRow(table)
 }
 
-function addEmptyRow(table) {
-  const tr = document.createElement('tr')
-  tr.innerHTML = '<td>1</td><td contenteditable></td><td>1</td>'
-  table.lastChild.append(tr)
-  const [left, middle, right] = tr.children
-  replaceWithNumScale(left, 'left')
-  replaceWithNumScale(right)
-  middle.oninput = handlePoaNameInput
-}
-
-function poaListToTableHtml(poaList) {
-  if (!poaList.find(poa => !poa[1]))
-    poaList.push([1,'',1])
-  return `<thead>
-    <tr>
-      <th>preferred attention</th>
-      <th>point of attention</th>
-      <th>actual attention</th>
-    </tr>
-  </thead>
-  <tbody>
-    ${ poaList.map(([needs, name, gets]) => `<tr>
-      <td contenteditable>${needs}</td>
-      <td contenteditable>${name}</td>
-      <td contenteditable>${gets}</td>
-    </tr>`).join('') }
-  </tbody>`
-}
-
 const row0 = table.rows[1]
 row0.remove()
 
-function buildTableRow([needs, name, gets]) {
+function buildTableRow([needs, name, gets]=['','','']) {
   const row = row0.cloneNode(true),
        [left, middle, right] = row.cells
   middle.innerText = name
@@ -74,47 +34,13 @@ function buildTableRow([needs, name, gets]) {
 }
 
 function loadPoaListToTable(poaList, {tBodies}) {
-  tBodies[0].append(...poaList.map(buildTableRow))
+  tBodies[0].append(...poaList.map(buildTableRow), buildTableRow())
 }
 
-function replaceWithNumScale(el, side='right') {
-  el.value = el.innerText
-
-  const nums = [...Array(10).keys()]
-  if (side == 'left') {
-    nums.reverse()
-    el.classList.add('left')
-  } else el.classList.add('right')
-
-  el.innerHTML = nums.map(num => `<span>${num+1}</span>`).join('')
-
-  el.classList.add('num-scale')
-  el.contentEditable = 'false'
-  const cells = [...el.children]
-
-  el.onmousemove =({target})=> {
-    if (el == target) return
-    cells.forEach(cell => {
-      if (+cell.innerText > +target.innerText)
-        cell.classList.remove('colored')
-      else cell.classList.add('colored')
-      cell.classList.remove('with-num')
-    })
-    target.classList.add('with-num')
-  }
-
-  el.onmouseleave =()=> el.onmousemove({target: [...el.children]
-    .find(cell => cell.innerText == el.value)})
-
-  el.onclick =({target})=> target != el && (el.value = target.innerText)
-
-  el.onmouseleave()
-}
-
-function tableToPoaList() {
-  return [...table.rows].slice(1)
-    .map(({cells: [{value: needs}, {innerText: name}, {value: gets}]})=>
-      [needs, name.trim(), gets]).filter(poa => poa[1])
+function formPoaListFromTable({tBodies: [{rows}]}) {
+  return [...rows].map(({cells: [
+    {dataset: {value: needs}}, {innerText: name}, {dataset: {value: gets}}
+  ]})=> [+needs, name.trim(), +gets]).filter(poa => poa[1])
 }
 
 function poaStringify(poaList) {
@@ -146,7 +72,7 @@ function loadLastSlice(noValues) {
   const poaList = sliceKeys[0]? poaParse(localStorage[sliceKeys[0]]) : []
   sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
   if (noValues) poaList.forEach(poa => poa[0] = poa[2] = 1)
-  poaListToTable(poaList)
+  loadPoaListToTable(poaList, table)
 }
 
 function startNewSlice() {
@@ -155,7 +81,7 @@ function startNewSlice() {
 }
 
 function saveSlice() {
-  localStorage[sliceLabel.innerText] = poaStringify(tableToPoaList())
+  localStorage[sliceLabel.innerText] = poaStringify(formPoaListFromTable())
   loadLastSlice()
 }
 
