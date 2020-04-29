@@ -1,0 +1,85 @@
+<html>
+
+<head>
+  <title>Hello</title>
+  <style>
+    * {
+      /* global font */
+      font-family: Verdana;
+      font-size: 18px;
+    }
+
+    #root {
+      display: flex;
+      flex-direction: row;
+    }
+
+    #content {
+      display: block;
+      width: 800px;
+      height: 250px;
+      /* vertically centered text */
+      line-height: 250px;
+      border: 2px solid #555;
+      margin: 32px;
+      text-align: center;
+    }
+
+    .route {
+      cursor: pointer;
+      justify-content: center;
+      width: 150px;
+      height: 50px;
+      /* vertically centered text */
+      line-height: 50px;
+      position: relative;
+      border: 2px solid #555;
+      background: white;
+      text-align: center;
+      margin: 16px;
+    }
+
+    .route.selected {
+      background: yellow;
+    }
+  </style>
+</head>
+
+<body>
+
+  <section id="root">
+    <section class="route" id="home">/home</section>
+    <section class="route" id="about">/about</section>
+    <section class="route" id="gallery">/gallery</section>
+    <section class="route" id="contact">/contact</section>
+    <section class="route" id="help">/help</section>
+  </section>
+
+  <main id="content">Content loading...</main>
+
+  <script>
+    const sections = root.querySelectorAll(".route")
+    sections.forEach(s => s.onclick = e => push(e.target.id))
+
+    function select_tab(id) {
+      sections.forEach(item => item.classList.remove('selected'));
+      window[id].classList.add('selected');
+    }
+    function load_content(id) {
+      content.innerHTML = 'Content loading for /'+id+'...'
+    }
+    function push(id) {
+      select_tab(id);
+      document.title = id;
+      load_content(id);
+      window.history.pushState({ id }, `${id}`, `/page/${id}`);
+    }
+
+    onpopstate = e => {
+      select_tab(e.state.id);
+      load_content(e.state.id);
+    };
+  </script>
+</body>
+
+</html>
