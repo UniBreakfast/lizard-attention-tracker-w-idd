@@ -1,7 +1,3 @@
-onload =()=> {
-  loadLastSlice()
-}
-
 newSliceBtn.onclick = startNewSlice
 saveSliceBtn.onclick = saveSlice
 
@@ -18,6 +14,12 @@ table.onclick = e => {
 
 const row0 = table.rows[1]
 row0.remove()
+
+loadLastSlice()
+
+
+
+
 
 function buildTableRow([needs, subject, gets]=['','','']) {
   const row = row0.cloneNode(true),
