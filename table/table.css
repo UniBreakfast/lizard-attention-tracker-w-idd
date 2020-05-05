@@ -1,14 +1,10 @@
-main {
-  height: 90vh;
-  max-width: 900px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: auto;
+#table-container {
+
 }
 
 button {
-  min-width: 200px;
-  padding: 10px;
-  font-size: large;
+}
+
+#table-container button {
+  font-size: 1.7rem;
 }

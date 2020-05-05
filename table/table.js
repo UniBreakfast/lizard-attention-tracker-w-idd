@@ -2,8 +2,13 @@
 
 let row0
 
+console.log('table.js');
+
 
 function prepareTable() {
+
+  console.log('prepareTable');
+
 
   newSliceBtn.onclick = startNewSlice
   saveSliceBtn.onclick = saveSlice

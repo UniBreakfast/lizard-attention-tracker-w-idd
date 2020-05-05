@@ -1,17 +1,3 @@
-const subPages = {
-  home: {
-    title: "Lizard Attention Tracker",
-    htmlFile: 'home.html',
-    cssFile: 'home.css',
-  },
-  table: {
-    title: "LAT Attention Table",
-    htmlFile: 'table.html',
-    cssFiles: ['numscale.css', 'table.css'],
-    jsFile: 'table.js',
-  },
-}
-
 // a fix for the cases where site is hosted deeper than the root level
 // you can simply assign a number that tells how deeply is your site hosted
 const rootDepth = location.host.endsWith('.github.io')? 1 : 0,
@@ -29,7 +15,7 @@ async function goto(path, saveHistory=true) {
 
   if (saveHistory) history.pushState({path}, path, rootPath+'/'+path)
 
-  const page = subPages[path]
+  const page = routes[path]
   document.title = page.title
 
   if (!page.html && page.htmlFile)
@@ -51,9 +37,9 @@ async function goto(path, saveHistory=true) {
 
   if (page.jsFile &&
       !doc.querySelector(`[src="${rootPath}/${path}/${page.jsFile}"]`))
-        head.append(crEl('script', {src: `${rootPath}/${path}/${page.jsFile}`}))
-
-  try { if (page.js) eval(page.js) } catch {}
+        head.append(crEl('script', {src: `${rootPath}/${path}/${page.jsFile}`,
+          onload: ()=> {try { eval(page.js) } catch {} } }))
+  else try { eval(page.js) } catch {}
 
   ls.page = path
 }

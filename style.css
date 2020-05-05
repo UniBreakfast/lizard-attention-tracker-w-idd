@@ -1,10 +1,16 @@
-html {
+html, button {
   font: 10px Trebuchet MS, Helvetica, Arial, sans-serif;
 }
 
 body {
   margin: 0;
   padding: 15px;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 header, main.default {
