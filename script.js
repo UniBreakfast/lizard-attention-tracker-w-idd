@@ -1,133 +1,77 @@
-onload =()=> {
-  loadLastSlice()
-}
+var doc = document,  {head, body} = doc,  ls = localStorage,
+   {assign, entries, fromEntries} = Object,  c = console.log,
+   {stringify, parse} = JSON,  clone = obj => parse(stringify(obj)),
+   compare =(a, b)=> stringify(a)==stringify(b),
+   {min, max, floor, ceil, round, random, abs} = Math,
+   rnd = n => floor(random()*n),
 
-newSliceBtn.onclick = startNewSlice
-saveSliceBtn.onclick = saveSlice
+getThe =(type, url, cb=p=>p)=> fetch(url).then(resp => resp[type]()).then(cb),
+getTxt =(url, cb)=> getThe('text', url, cb),
+getObj =(url, cb)=> getThe('json', url, cb),  getArr = getObj,
 
-onkeydown = e => {
-  if (e.code=='KeyS' && e.ctrlKey) saveSlice(), e.preventDefault()
-  if (e.code=='KeyN' && e.altKey) startNewSlice()
-}
+range =(from, to)=> [...Array(to).keys()].map(n => n+from),
+mapArr =(len, fn, thisArg)=> Array.from(range(0, len), fn, thisArg),
 
-table.onmousemove = trapMouseMove
-table.onclick = e => {
-  if (e.target.className=='trap') trapMouseClick(e)
-  else if (e.target.tagName=='TH') sortTableBy(e.target)
-}
+repeatTill =(fn, delay, duration)=> ( fn(),
+  setTimeout(clearInterval, duration, setInterval(fn, delay)) ),
+repeatTimes =(fn, delay, count=1)=> { fn()
+  const inter = setInterval(()=> --count? fn() : clearInterval(inter), delay)
+  return inter },
 
-const row0 = table.rows[1]
-row0.remove()
+rotate =(vals, subj, key)=> !key? vals[(vals.indexOf(subj)+1) % vals.length] :
+  subj[key] = vals[(vals.indexOf(subj[key])+1) % vals.length],
 
-function buildTableRow([needs, subject, gets]=['','','']) {
-  const row = row0.cloneNode(true),
-    [needScale, subjField, getScale] = row.cells
-  subjField.innerText = subject
-  subjField.oninput = handleSubjectInput
-  needScale.dataset.value = needs || ''
-  getScale.dataset.value = gets || ''
-  row.style.setProperty('--needs-width', needs+'0%')
-  row.style.setProperty('--gets-width', gets+'0%')
-  return row
-}
+crEl =(tag,...props)=> doc.createElement(tag).change(...props)
 
-function loadSubjListToTable(subjList, {tBodies}) {
-  tBodies[0].innerHTML = ''
-  tBodies[0].append(...subjList.map(buildTableRow), buildTableRow())
-}
+assign(Array.prototype, {
+  with: function (props) { return assign(this, props) },
+  change: function (fn) { return assign(this, Array.from(this).map(fn)) },
+})
 
-function formSubjListFromTable({tBodies: [{rows}]}) {
-  return [...rows].map(({ cells: [
-    {dataset: {value: needs}}, {innerText: subject}, {dataset: {value: gets}}
-  ] }) => [+needs, subject.trim(), +gets]).filter(subj => subj[1])
-}
-
-function subjListStringify(subjList) {
-  return subjList.map(subj => Object.values(subj).join('|')).join('_')
-}
-
-function subjLineParse(str) {
-  return str.split('_').map(str => str.split('|'))
-    .map(([needs, subject, gets]) => [+needs, subject.trim(), +gets])
-}
-
-function generateSliceLabel() {
-  const datetime = new Date,
-    year = datetime.getFullYear(),
-    month = String(datetime.getMonth()+1).padStart(2, 0),
-    day = String(datetime.getDate()).padStart(2, 0),
-    date = [year, month, day].join('_'),
-    slicesToday = Object.keys(localStorage)
-      .filter(key => key.startsWith('slice_'+date)).sort((a, b) => a<b? 1 : -1),
-    letter = !slicesToday[0]? 'a' :
-      String.fromCharCode(slicesToday[0].slice(-1).charCodeAt() + 1)
-  return ['slice', date, letter].join('_')
-}
-
-function loadLastSlice(noValues) {
-  const sliceKeys = Object.keys(localStorage)
-    .filter(key => key.startsWith('slice_')).sort((a, b) => a<b? 1 : -1)
-  const subjList = sliceKeys[0]? subjLineParse(localStorage[sliceKeys[0]]) : []
-  sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
-  if (noValues) subjList.forEach(subj => subj[0] = subj[2] = 1)
-  loadSubjListToTable(subjList, table)
-}
-
-function startNewSlice() {
-  loadLastSlice('empty')
-  sliceLabel.innerText = generateSliceLabel()
-}
-
-function saveSlice() {
-  localStorage[sliceLabel.innerText] =
-    subjListStringify(formSubjListFromTable(table))
-  loadLastSlice()
-}
-
-function trapMouseMove(e) {
-  if (e.target.className == 'trap') {
-    const [trap, scale, row] = e.path
-    let part = Math.ceil(e.offsetX/trap.clientWidth * 10) || 1
-    if (scale.classList.contains('needs'))  part = 11-part
-    scale.dataset.hoverValue = part
-    row.style.setProperty('--hover-width', part+'0%')
-  }
-}
-
-function trapMouseClick(e) {
-  const [trap, scale, row] = e.path
-  let part = Math.ceil(e.offsetX/trap.clientWidth * 10) || 1
-  if (scale.classList.contains('needs')) {
-    scale.dataset.value = 11-part
-    row.style.setProperty('--needs-width', 11-part+'0%')
-  } else {
-    scale.dataset.value = part
-    row.style.setProperty('--gets-width', part+'0%')
-  }
-}
-
-function sortTableBy(header) {
-  if (header.dataset.sort=='desc') header.dataset.sort = 'asc'
-  else {
-    const prev = header.parentNode.querySelector('[data-sort]')
-    if (prev) delete prev.dataset.sort
-    header.dataset.sort = 'desc'
-  }
-  const tbody = header.parentNode.parentNode.nextElementSibling,
-    rows = [...tbody.rows],
-    col = header.cellIndex,
-    sorter = col!=1
-      ? (a, b) => b.cells[col].dataset.value - a.cells[col].dataset.value
-      : (a, b) =>
-        Math.abs(b.cells[0].dataset.value - b.cells[2].dataset.value) -
-        Math.abs(a.cells[0].dataset.value - a.cells[2].dataset.value)
-  rows.sort(sorter)
-  if (header.dataset.sort=='asc') rows.reverse()
-  tbody.append(...rows,...rows.filter(row => !row.cells[1].innerText))
-}
-
-function handleSubjectInput({ target }) {
-  const tbody = target.parentNode.parentNode
-  if ([...tbody.rows].every(row => row.cells[1].innerText))
-    tbody.append(buildTableRow())
-}
+assign(Element.prototype, {
+  class: function (className, n) { const classes = className.split(' ')
+    if (n===1) this.change({className})
+    else if (n===-1) this.classList.remove(...classes)
+    else if (n) this.classList.toggle(className)
+    else this.classList.add(...classes)
+    return this },
+  htm: function (innerHTML='') { return this.change({innerHTML}) },
+  txt: function (innerText='') { return this.change({innerText}) },
+  val: function (value='') { return this.change({value}) },
+  pre: function (el) { el.parent().insertBefore(this, el); return this },
+  aft: function (el) { el.next()? this.pre(el.next()) :
+         this.into(el.parent()); return this },
+  into: function (el) { el.append(this); return el },
+  host: function (arr) { return arr? (this.append(...arr), this) :
+          el => this.appendChild(el) },
+  mult: function (n=1) { return this.copy(n).map(el => el.aft(this)).reverse()},
+  copy: function (n) { return this.clone(n) },
+  clone: function (n) { return n? mapArr(n, ()=> this.clone()) :
+           this.cloneNode(1) },
+  change: function (...props) { for (let subj=this, i=0; i<props.length; ++i) {
+      if (typeof props[i]=='string')  subj = typeof this[props[i]]=='function'?
+        this[props[i]]() : this[props[i]]
+      else assign(subj, props[i]) } return this },
+  parent: function (sel) { return sel? this.closest(sel) : this.parentNode },
+  child: function (sel) { return typeof sel!='number'? this.first(sel) :
+           this.children[sel<0? this.all().length+sel : sel] },
+  first: function (sel) { return typeof sel=='number'? this.all().slice(sel) :
+           sel? this.querySelector(sel) : this.firstElementChild },
+  last: function (sel) { return typeof sel=='number'? this.all().slice(-sel) :
+          sel? this.all(sel).pop() : this.lastElementChild },
+  prev: function (sel) { return sel? this.sibs(sel)[this.i(sel)-1] :
+          this.previousElementSibling },
+  next: function (sel) { return sel? this.sibs(sel)[this.i(sel)+1] :
+          this.nextElementSibling },
+  sibs: function (sel) { return typeof sel!='number'? this.parent().all(sel) :
+          this.parent().child(i) },
+  subs: function (sel) { const subs = this.all(sel).filter(el =>
+          el.parent()==this); return subs.length? subs : null },
+  all: function (sel) {
+         return [...sel? this.querySelectorAll(sel) : this.children] },
+  i: function (sel) { return this.sibs(sel).indexOf(this) },
+  arr: function (depth=Infinity) { return [this, ...depth? this.all()
+         .map(el => el.arr(depth-1)) : []] },
+  arrIn: function (depth=Infinity) { return depth && this.subs()? this.all()
+           .map(el => el.arrIn(depth-1)).with({in: this}) : this },
+})

@@ -1,0 +1,44 @@
+html, button {
+  font: 10px Trebuchet MS, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 15px;
+}
+
+button {
+  padding: 5px 10px;
+  font-size: 1.7rem;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+td, th {
+  padding: 5px 8px;
+  border: 1px solid black;
+}
+
+header, main.default {
+  border: 1px solid;
+  font-size: 2rem;
+  text-align: center;
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+main.default {
+  padding: 200px;
+  margin-top: 20px;
+}
+
+#mainWrapper {
+  max-width: 1000px;
+  margin: auto;
+}

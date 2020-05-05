@@ -3,40 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lizard Attention Tracker</title>
 
-  <link rel="stylesheet" href="numscale.css">
+  <link rel="stylesheet" href="style.css">
 
-  <script src="subj_list_ex.js"></script>
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
+  <script src="routes.js"></script>
+  <script src="router.js"></script>
 </head>
 <body>
-  <center>
-    <button id="newSliceBtn">New</button>
-    <b id="sliceLabel"></b>
-    <button id="saveSliceBtn">Save</button>
-    <table id="table" border="1">
-      <thead>
-        <tr>
-          <th>needs attention</th>
-          <th>subject</th>
-          <th>gets attention</th>
-        </tr>
-      </thead>
-      <tbody id="tbody">
-        <tr>
-          <td class="scale needs" data-value="1">
-            <div class="bar"></div><div class="mark"></div>
-            <div class="trap"></div>
-          </td>
-          <td contenteditable></td>
-          <td class="scale gets" data-value="1">
-            <div class="bar"></div><div class="mark"></div>
-            <div class="trap"></div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </center>
+  <header>
+    This part of the page is present above all routed subpages
+  </header>
+
+  <section id="mainWrapper">
+    <main class="default">
+      No subpage loaded yet
+    </main>
+  </section>
 </body>
 </html>

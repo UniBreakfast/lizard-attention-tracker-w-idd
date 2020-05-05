@@ -1,0 +1,32 @@
+#table-container {
+  text-align: center;
+  padding: 20px;
+}
+
+#table {
+  font-size: 1.4rem;
+  margin: 15px auto 40px;
+}
+
+#table th {
+  border: none;
+  cursor: pointer;
+}
+
+#table th[data-sort], #table th:hover {
+  text-decoration: underline;
+}
+
+#table td {
+  text-align: center;
+  font-size: 1.6rem;
+}
+
+#table-container button {
+  font-size: 1.7rem;
+}
+
+#sliceLabel {
+  font-size: 2rem;
+  margin: 15px;
+}
