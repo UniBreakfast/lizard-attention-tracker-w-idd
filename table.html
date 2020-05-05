@@ -1,0 +1,47 @@
+<main>
+  <style>
+    main {
+      height: 90vh;
+      max-width: 900px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: auto;
+    }
+
+    button {
+      min-width: 200px;
+      padding: 10px;
+      font-size: large;
+    }
+  </style>
+
+  <button id="newSliceBtn">New</button>
+  <b id="sliceLabel"></b>
+  <button id="saveSliceBtn">Save</button>
+  <table id="table" border="1">
+    <thead>
+      <tr>
+        <th>needs attention</th>
+        <th>subject</th>
+        <th>gets attention</th>
+      </tr>
+    </thead>
+    <tbody id="tbody">
+      <tr>
+        <td class="scale needs" data-value="1">
+          <div class="bar"></div><div class="mark"></div>
+          <div class="trap"></div>
+        </td>
+        <td contenteditable></td>
+        <td class="scale gets" data-value="1">
+          <div class="bar"></div><div class="mark"></div>
+          <div class="trap"></div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button id="gotoMenuBtn">Home (main menu)</button>
+
+</main>

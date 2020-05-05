@@ -1,21 +1,30 @@
-newSliceBtn.onclick = startNewSlice
-saveSliceBtn.onclick = saveSlice
 
-onkeydown = e => {
-  if (e.code=='KeyS' && e.ctrlKey) saveSlice(), e.preventDefault()
-  if (e.code=='KeyN' && e.altKey) startNewSlice()
+
+let row0
+
+
+function prepareTable() {
+
+  newSliceBtn.onclick = startNewSlice
+  saveSliceBtn.onclick = saveSlice
+
+  onkeydown = e => {
+    if (e.code=='KeyS' && e.ctrlKey) saveSlice(), e.preventDefault()
+    if (e.code=='KeyN' && e.altKey) startNewSlice()
+  }
+
+  table.onmousemove = trapMouseMove
+  table.onclick = e => {
+    if (e.target.className=='trap') trapMouseClick(e)
+    else if (e.target.tagName=='TH') sortTableBy(e.target)
+  }
+
+  row0 = table.rows[1]
+  row0.remove()
+
+  loadLastSlice()
 }
 
-table.onmousemove = trapMouseMove
-table.onclick = e => {
-  if (e.target.className=='trap') trapMouseClick(e)
-  else if (e.target.tagName=='TH') sortTableBy(e.target)
-}
-
-const row0 = table.rows[1]
-row0.remove()
-
-loadLastSlice()
 
 
 

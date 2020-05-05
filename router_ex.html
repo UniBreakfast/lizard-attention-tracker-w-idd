@@ -72,7 +72,7 @@
       select_tab(id);
       document.title = id;
       load_content(id);
-      history.pushState({ id }, `${id}`, `/page/${id}`);
+      history.pushState({ id }, id, '/'+id);
     }
 
     onpopstate = e => {

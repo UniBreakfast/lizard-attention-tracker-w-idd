@@ -1,0 +1,1 @@
+gotoTableBtn.onclick = goto('table', 'Attention Spread Table')
