@@ -1,32 +1,64 @@
-const sections = root.querySelectorAll(".route")
-sections.forEach(s => s.onclick = e => push(e.target.id))
-
-function select_tab(id) {
-  sections.forEach(item => item.classList.remove('selected'));
-  window[id].classList.add('selected');
-}
-function load_content(id) {
-  content.innerHTML = 'Content loading for /'+id+'...'
-}
-function push(id) {
-  select_tab(id);
-  document.title = id;
-  load_content(id);
-  history.pushState({ id }, id, '/'+id);
+const subPages = {
+  home: {
+    title: "Lizard Attention Tracker",
+    htmlFile: 'home.html',
+    cssFile: 'home.css',
+  },
+  table: {
+    title: "LAT Attention Table",
+    htmlFile: 'table.html',
+    cssFiles: ['numscale.css', 'table.css'],
+    jsFile: 'table.js',
+  },
 }
 
-onpopstate = e => {
-  select_tab(e.state.id);
-  load_content(e.state.id);
-};
+// a fix for the cases where site is hosted deeper than the root level
+// you can simply assign a number that tells how deeply is your site hosted
+const rootDepth = location.host.endsWith('.github.io')? 1 : 0,
+    rootPath = location.pathname.match(/\/[^/]*/g).slice(0, rootDepth).join('')
+
+let path = getPath()
+if (path) goto(path)
+else onload =()=> goto(getPath() || ls.page)
+
+onpopstate = e => goto((e.state || {path}).path, false)
 
 
-function goto(page, title) {
-  doc.title = title || page
-  router[page]();
-  history.pushState({ id }, id, '/'+id);
+async function goto(path, saveHistory=true) {
+  path = path || 'home'
+
+  if (saveHistory) history.pushState({path}, path, rootPath+'/'+path)
+
+  const page = subPages[path]
+  document.title = page.title
+
+  if (!page.html && page.htmlFile)
+    page.html = await getTxt(`${rootPath}/${path}/${page.htmlFile}`)
+
+  if (page.html) mainWrapper.htm(page.html)
+
+  try { subPageStyling.remove() } catch {}
+
+  if (!page.css && page.cssFile)
+    page.css = await getTxt(`${rootPath}/${path}/${page.cssFile}`)
+
+  if (!page.css && page.cssFiles)
+    page.css = (await Promise.all(page.cssFiles
+      .map(file => getTxt(`${rootPath}/${path}/${file}`)))).join('\n')
+
+  if (page.css)
+    head.append(crEl('style', {innerHTML: page.css, id: 'subPageStyling'}))
+
+  if (page.jsFile &&
+      !doc.querySelector(`[src="${rootPath}/${path}/${page.jsFile}"]`))
+        head.append(crEl('script', {src: `${rootPath}/${path}/${page.jsFile}`}))
+
+  try { if (page.js) eval(page.js) } catch {}
+
+  ls.page = path
 }
 
-const router = {
-  home()
+function getPath() {
+  return /([^/]*)\/?$/
+    .exec(location.pathname.replace('/index.html','').slice(rootPath.length))[1]
 }

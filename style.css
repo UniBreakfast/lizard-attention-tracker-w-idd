@@ -1,0 +1,28 @@
+html {
+  font: 10px Trebuchet MS, Helvetica, Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 15px;
+}
+
+header, main.default {
+  border: 1px solid;
+  font-size: 2rem;
+  text-align: center;
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+  box-sizing: border-box;
+}
+
+main.default {
+  padding: 200px;
+  margin-top: 20px;
+}
+
+#mainWrapper {
+  max-width: 1000px;
+  margin: auto;
+}

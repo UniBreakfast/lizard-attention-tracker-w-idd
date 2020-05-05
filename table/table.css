@@ -1,0 +1,14 @@
+main {
+  height: 90vh;
+  max-width: 900px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+button {
+  min-width: 200px;
+  padding: 10px;
+  font-size: large;
+}
