@@ -11,6 +11,13 @@
   padding: 0;
 }
 
+.scale.needs {
+  border-color: var(--needs-color);
+}
+.scale.gets {
+  border-color: var(--gets-color);
+}
+
 .scale .bar, .scale .mark, .scale .trap, .scale:after {
   position: absolute;
   top: 0;

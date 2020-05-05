@@ -11,7 +11,7 @@ onpopstate = e => goto((e.state || {path}).path, false)
 
 
 async function goto(path, saveHistory=true) {
-  path = path || 'home'
+  path = routes[path]? path : 'home'
 
   if (saveHistory) history.pushState({path}, path, rootPath+'/'+path)
 
