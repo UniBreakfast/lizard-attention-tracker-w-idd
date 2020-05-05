@@ -7,6 +7,11 @@ body {
   padding: 15px;
 }
 
+button {
+  padding: 5px 10px;
+  font-size: 1.7rem;
+}
+
 ul {
   list-style: none;
   margin: 0;
