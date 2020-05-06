@@ -1,7 +1,7 @@
 fetch(loader.dataset.src).then(r=>r.text()).then(html => {
   ({head, body} = doc = document)
 
-  html = html.replace(/((src=")|(href=")(?!favicon))/g, '$1../')
+  html = html.replace(/((src=")|(href=")(?!.*favicon))/g, '$1../')
 
   body.innerHTML = /<body>([\s\S]*)<\/body>/.exec(html)[0]
 
