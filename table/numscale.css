@@ -9,13 +9,16 @@
   color: white;
   position: relative;
   padding: 0;
+  overflow: hidden;
 }
 
 .scale.needs {
   border-color: var(--needs-color);
+  border-radius: 99px 0 0 99px;
 }
 .scale.gets {
   border-color: var(--gets-color);
+  border-radius: 0 99px 99px 0;
 }
 
 .scale .bar, .scale .mark, .scale .trap, .scale:after {
@@ -23,6 +26,7 @@
   top: 0;
   height: 100%;
   box-sizing: border-box;
+  transition: .2s ;
 }
 
 .scale .trap {
@@ -34,11 +38,13 @@
   right: 0;
   background: var(--needs-color);
   width: var(--needs-width);
+  border-radius: 9px 0 0 9px;
 }
 
 .scale.gets .bar {
   background: var(--gets-color);
   width: var(--gets-width);
+  border-radius: 0 9px 9px 0;
 }
 
 .scale.needs .mark {

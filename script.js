@@ -73,5 +73,11 @@ assign(Element.prototype, {
   arr: function (depth=Infinity) { return [this, ...depth? this.all()
          .map(el => el.arr(depth-1)) : []] },
   arrIn: function (depth=Infinity) { return depth && this.subs()? this.all()
-           .map(el => el.arrIn(depth-1)).with({in: this}) : this },
+           .map(el => el.arrIn(depth-1)).reverse().with({in: this}) : this },
+  arrLike: function (depth) { const like = arr => {
+             if (Array.isArray(arr)) arr.forEach(like), arr.__proto__ = null
+             return arr }; return like(this.arr(depth)) },
+  arrLikeIn: function (depth) { const like = arr => {
+             if (Array.isArray(arr)) arr.forEach(like), arr.__proto__ = null
+             return arr }; return like(this.arrIn(depth)) },
 })

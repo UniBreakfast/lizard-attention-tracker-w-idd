@@ -62,17 +62,17 @@ function generateSliceLabel() {
     year = datetime.getFullYear(),
     month = String(datetime.getMonth()+1).padStart(2, 0),
     day = String(datetime.getDate()).padStart(2, 0),
-    date = [year, month, day].join('_'),
+    date = [year, month, day].join('-'),
     slicesToday = Object.keys(localStorage)
-      .filter(key => key.startsWith('slice_'+date)).sort((a, b) => a<b? 1 : -1),
+      .filter(key => key.startsWith('slice '+date)).sort((a, b) => a<b? 1 : -1),
     letter = !slicesToday[0]? 'a' :
       String.fromCharCode(slicesToday[0].slice(-1).charCodeAt() + 1)
-  return ['slice', date, letter].join('_')
+  return ['slice', date, letter].join(' ')
 }
 
 function loadLastSlice(noValues) {
   const sliceKeys = Object.keys(localStorage)
-    .filter(key => key.startsWith('slice_')).sort((a, b) => a<b? 1 : -1)
+    .filter(key => key.startsWith('slice ')).sort((a, b) => a<b? 1 : -1)
   const subjList = sliceKeys[0]? subjLineParse(localStorage[sliceKeys[0]]) : []
   sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
   if (noValues) subjList.forEach(subj => subj[0] = subj[2] = 1)

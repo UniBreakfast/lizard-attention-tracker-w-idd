@@ -33,6 +33,11 @@ header, main.default {
   box-sizing: border-box;
 }
 
+header {
+  border-color: #ddd;
+  color: #ddd;
+}
+
 main.default {
   padding: 200px;
   margin-top: 20px;
