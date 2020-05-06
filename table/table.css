@@ -28,11 +28,34 @@
   border-color: var(--gets-color) var(--gets-color) var(--needs-color) var(--needs-color);
 }
 
-#table-container button {
-  font-size: 1.7rem;
-}
-
 #sliceLabel {
   font-size: 2rem;
   margin: 15px;
+}
+
+#table-container button {
+  font-size: 1.7rem;
+  background-clip: padding-box;
+  border: 4px double;
+  border-radius: 9px;
+  transition: .3s;
+}
+#table-container button:hover {
+  color: white;
+  background: #333;
+}
+
+#newSliceBtn {
+  color: var(--needs-color);
+  border-color: var(--needs-color);
+}
+button#newSliceBtn:hover {
+  background: var(--needs-color);
+}
+#saveSliceBtn {
+  color: var(--gets-color);
+  border-color: var(--gets-color);
+}
+button#saveSliceBtn:hover {
+  background: var(--gets-color);
 }
