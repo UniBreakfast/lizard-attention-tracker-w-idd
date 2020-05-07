@@ -26,7 +26,7 @@
   top: 0;
   height: 100%;
   box-sizing: border-box;
-  transition: .2s ;
+  transition: 1s ;
 }
 
 .scale .trap {
@@ -60,6 +60,7 @@
 
 .scale:hover .bar {
   width: var(--hover-width);
+  transition: .2s;
 }
 
 .scale:after {
@@ -82,4 +83,5 @@
 .scale:hover:after {
   content: attr(data-hover-value);
   width: var(--hover-width);
+  transition: .2s ;
 }
