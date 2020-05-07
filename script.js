@@ -1,5 +1,5 @@
 var doc = document,  {head, body} = doc,  ls = localStorage,
-   {assign, entries, fromEntries} = Object,  c = console.log,
+   {assign, keys, values, entries, fromEntries} = Object,  c = console.log,
    {stringify, parse} = JSON,  clone = obj => parse(stringify(obj)),
    compare =(a, b)=> stringify(a)==stringify(b),
    {min, max, floor, ceil, round, random, abs} = Math,
@@ -63,8 +63,10 @@ assign(Element.prototype, {
           this.previousElementSibling },
   next: function (sel) { return sel? this.sibs(sel)[this.i(sel)+1] :
           this.nextElementSibling },
-  sibs: function (sel) { return typeof sel!='number'? this.parent().all(sel) :
-          this.parent().child(i) },
+  sib: function (sel) { return typeof sel=='number'? this.parent().child(sel) :
+         sel? this.sibs(sel)[0] : this.parent().first() },
+  sibs: function (sel) { return typeof sel!='number'? this.parent().subs(sel) :
+          this.parent().subs().slice(0, sel) },
   subs: function (sel) { const subs = this.all(sel).filter(el =>
           el.parent()==this); return subs.length? subs : null },
   all: function (sel) {

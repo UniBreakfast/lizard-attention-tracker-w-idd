@@ -1,5 +1,4 @@
 
-
 let row0
 
 function prepareTable() {
@@ -21,15 +20,13 @@ function prepareTable() {
   row0 = table.rows[1]
   row0.remove()
 
-  loadLastSlice()
+  window['slice']? loadSlice(slice) : loadLastSlice()
 }
 
 
 function buildTableRow([needs, subject, gets]=['','','']) {
-  const row = row0.cloneNode(true),
-    [needScale, subjField, getScale] = row.cells
-  subjField.innerText = subject
-  subjField.oninput = handleSubjectInput
+  const row = row0.copy(),  [needScale, subjField, getScale] = row.cells
+  subjField.txt(subject).oninput = handleSubjectInput
   needScale.dataset.value = needs || ''
   getScale.dataset.value = gets || ''
   row.style.setProperty('--needs-width', needs+'0%')
@@ -38,8 +35,7 @@ function buildTableRow([needs, subject, gets]=['','','']) {
 }
 
 function loadSubjListToTable(subjList, {tBodies}) {
-  tBodies[0].innerHTML = ''
-  tBodies[0].append(...subjList.map(buildTableRow), buildTableRow())
+  tBodies[0].htm().append(...subjList.map(buildTableRow), buildTableRow())
 }
 
 function formSubjListFromTable({tBodies: [{rows}]}) {
@@ -49,7 +45,7 @@ function formSubjListFromTable({tBodies: [{rows}]}) {
 }
 
 function subjListStringify(subjList) {
-  return subjList.map(subj => Object.values(subj).join('|')).join('_')
+  return subjList.map(subj => values(subj).join('|')).join('_')
 }
 
 function subjLineParse(str) {
@@ -63,37 +59,43 @@ function generateSliceLabel() {
     month = String(datetime.getMonth()+1).padStart(2, 0),
     day = String(datetime.getDate()).padStart(2, 0),
     date = [year, month, day].join('-'),
-    slicesToday = Object.keys(localStorage)
-      .filter(key => key.startsWith('slice '+date)).sort((a, b) => a<b? 1 : -1),
+    slicesToday = keys(ls).filter(key => key.startsWith('slice '+date))
+      .sort((a, b) => a<b? 1 : -1),
     letter = !slicesToday[0]? 'a' :
       String.fromCharCode(slicesToday[0].slice(-1).charCodeAt() + 1)
   return ['slice', date, letter].join(' ')
 }
 
+function loadSlice(label) {
+  const subjList = subjLineParse(ls[label])
+  sliceLabel.txt(label)
+  loadSubjListToTable(subjList, table)
+}
+
 function loadLastSlice(noValues) {
-  const sliceKeys = Object.keys(localStorage)
+  const sliceKeys = keys(ls)
     .filter(key => key.startsWith('slice ')).sort((a, b) => a<b? 1 : -1)
-  const subjList = sliceKeys[0]? subjLineParse(localStorage[sliceKeys[0]]) : []
-  sliceLabel.innerText = sliceKeys[0] || generateSliceLabel()
+  const subjList = sliceKeys[0]? subjLineParse(ls[sliceKeys[0]]) : []
+  sliceLabel.txt(sliceKeys[0] || generateSliceLabel())
   if (noValues) subjList.forEach(subj => subj[0] = subj[2] = 1)
   loadSubjListToTable(subjList, table)
 }
 
 function startNewSlice() {
+  slice = ''
   loadLastSlice('empty')
-  sliceLabel.innerText = generateSliceLabel()
+  sliceLabel.txt(generateSliceLabel())
 }
 
 function saveSlice() {
-  localStorage[sliceLabel.innerText] =
-    subjListStringify(formSubjListFromTable(table))
-  loadLastSlice()
+  ls[sliceLabel.innerText] = subjListStringify(formSubjListFromTable(table))
+  window['slice']? loadSlice(slice) : loadLastSlice()
 }
 
 function trapMouseMove(e) {
   if (e.target.className == 'trap') {
     const [trap, scale, row] = e.path
-    let part = Math.ceil(e.offsetX/trap.clientWidth * 10) || 1
+    let part = ceil(e.offsetX/trap.clientWidth * 10) || 1
     if (scale.classList.contains('needs'))  part = 11-part
     scale.dataset.hoverValue = part
     row.style.setProperty('--hover-width', part+'0%')
@@ -102,7 +104,7 @@ function trapMouseMove(e) {
 
 function trapMouseClick(e) {
   const [trap, scale, row] = e.path
-  let part = Math.ceil(e.offsetX/trap.clientWidth * 10) || 1
+  let part = ceil(e.offsetX/trap.clientWidth * 10) || 1
   if (scale.classList.contains('needs')) {
     scale.dataset.value = 11-part
     row.style.setProperty('--needs-width', 11-part+'0%')
@@ -115,11 +117,11 @@ function trapMouseClick(e) {
 function sortTableBy(header) {
   if (header.dataset.sort=='desc') header.dataset.sort = 'asc'
   else {
-    const prev = header.parentNode.querySelector('[data-sort]')
+    const prev = header.parent().querySelector('[data-sort]')
     if (prev) delete prev.dataset.sort
     header.dataset.sort = 'desc'
   }
-  const tbody = header.parentNode.parentNode.nextElementSibling,
+  const tbody = header.parent('thead').next(),
     rows = [...tbody.rows],
     col = header.cellIndex,
     sorter = col!=1
