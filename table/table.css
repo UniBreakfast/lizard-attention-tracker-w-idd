@@ -42,7 +42,8 @@
 }
 #table-container button:hover {
   color: white;
-  background: #333;
+  background-color: #333;
+  border-color: #333;
 }
 
 #newSliceBtn {
@@ -50,12 +51,14 @@
   border-color: var(--needs-color);
 }
 button#newSliceBtn:hover {
-  background: var(--needs-color);
+  background-color: var(--needs-color);
+  border-color: var(--needs-color);
 }
 #saveSliceBtn {
   color: var(--gets-color);
   border-color: var(--gets-color);
 }
 button#saveSliceBtn:hover {
-  background: var(--gets-color);
+  background-color: var(--gets-color);
+  border-color: var(--gets-color);
 }
