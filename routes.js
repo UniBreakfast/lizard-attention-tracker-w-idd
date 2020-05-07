@@ -11,4 +11,11 @@ const routes = {
     js: "prepareTable()",
     jsFile: 'table.js',
   },
+  slices: {
+    title: "LAT Attention Slices",
+    htmlFile: 'slices.html',
+    cssFile: 'slices.css',
+    js: "prepareSlices()",
+    jsFile: 'slices.js',
+  },
 }
