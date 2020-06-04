@@ -79,6 +79,8 @@ function loadLastSlice(noValues) {
   sliceLabel.txt(sliceKeys[0] || generateSliceLabel())
   if (noValues) subjList.forEach(subj => subj[0] = subj[2] = 1)
   loadSubjListToTable(subjList, table)
+
+  console.log(calcMindfulness(subjList))
 }
 
 function startNewSlice() {
@@ -138,4 +140,10 @@ function handleSubjectInput({ target }) {
   const tbody = target.parentNode.parentNode
   if ([...tbody.rows].every(row => row.cells[1].innerText))
     tbody.append(buildTableRow())
+}
+
+function calcMindfulness(subjList) {
+  return subjList.reduce(([max, lost], [needs, _, gets]) =>
+    [max + (needs>5? needs-1 : 10-needs), lost + Math.abs(gets - needs)], [0,0])
+      .reduce((max, lost)=> (max-lost)/max * 100 | 0)
 }
