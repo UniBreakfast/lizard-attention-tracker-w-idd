@@ -23,7 +23,6 @@ function prepareTable() {
   window['slice']? loadSlice(slice) : loadLastSlice()
 }
 
-
 function buildTableRow([needs, subject, gets]=['','','']) {
   const row = row0.copy(),  [needScale, subjField, getScale] = row.cells
   subjField.txt(subject).oninput = handleSubjectInput
@@ -96,7 +95,7 @@ function saveSlice() {
 
 function trapMouseMove(e) {
   if (e.target.className == 'trap') {
-    const [trap, scale, row] = e.path
+    const [trap, scale, row] = e.composedPath()
     let part = ceil(e.offsetX/trap.clientWidth * 10) || 1
     if (scale.classList.contains('needs'))  part = 11-part
     scale.dataset.hoverValue = part
@@ -105,7 +104,7 @@ function trapMouseMove(e) {
 }
 
 function trapMouseClick(e) {
-  const [trap, scale, row] = e.path
+  const [trap, scale, row] = e.composedPath()
   let part = ceil(e.offsetX/trap.clientWidth * 10) || 1
   if (scale.classList.contains('needs')) {
     scale.dataset.value = 11-part
